@@ -14,7 +14,11 @@ services:
 
   backend:
     build: ./backend
-    command: python manage.py runserver 0.0.0.0:8000
+    # Chains migrations and prints a clear link in the terminal before starting
+    command: >
+      sh -c "python manage.py migrate && 
+      echo '🚀 BACKEND API READY AT: http://localhost:8000/api/' && 
+      python manage.py runserver 0.0.0.0:8000"
     volumes:
       - ./backend:/app
     ports:
@@ -30,13 +34,18 @@ services:
 
   frontend:
     build: ./frontend
-    # CRITICAL CHANGE: Force 0.0.0.0 here to override everything else
-    command: npm run dev -- --host 0.0.0.0
+    # Guarantees ALL dependencies are installed, prints the link, and forces Vite to use 12345 internally
+    command: >
+      sh -c "npm install && 
+      npm install framer-motion lucide-react clsx tailwind-merge && 
+      echo '🌟 FRONTEND APP READY AT: http://localhost:12345/' && 
+      npx vite --host 0.0.0.0 --port 12345"
     volumes:
       - ./frontend:/app
       - /app/node_modules
+    # Map 12345 internal to 12345 external so the console log is accurate
     ports:
-      - "12345:5173"
+      - "12345:12345"
     environment:
       - VITE_API_URL=http://localhost:8000
     depends_on:

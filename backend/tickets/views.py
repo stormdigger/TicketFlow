@@ -110,7 +110,7 @@ class TicketViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['post'])
     def suggest_solution(self, request):
         """
-        Asks Gemini for a concise technical solution.
+        Asks Gemini for a concise technical solution, with a humorous fallback for off-topic inputs.
         """
         description = request.data.get('description', '')
         if not description:
@@ -118,9 +118,16 @@ class TicketViewSet(viewsets.ModelViewSet):
 
         try:
             model = genai.GenerativeModel('gemini-2.5-flash')
-            prompt = f"Provide a concise, 2-sentence technical solution for this issue: {description}"
+            prompt = f"""
+            You are a Technical Support AI. Read the following user issue:
+            "{description}"
+
+            Instructions:
+            1. If the issue is a personal problem, a joke, a philosophical question, or completely unrelated to IT/software support: Reply in a very humorous, witty, and slightly sarcastic way. Acknowledge their funny issue, but gently remind them that you are strictly an IT Support AI and can only fix servers, bugs, and software.
+            2. If it IS a valid technical/software/business issue: Provide a strictly professional, concise, 2-sentence technical solution. Do not use humor here.
+            """
             response = model.generate_content(prompt)
             return Response({"solution": response.text.strip()})
         except Exception as e:
             logger.error(f"LLM Solution Error: {e}")
-            return Response({"solution": "Unable to generate a solution at this time."}, status=500)
+            return Response({"solution": "Unable to connect to the AI mainframe at this time."}, status=500)
