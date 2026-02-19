@@ -37,10 +37,9 @@ Ensure you have the following installed on your system:
 
 ### 2. Environment Setup
 
-Create a `.env` file in the root directory or add the environment variable directly within `docker-compose.yml`:
+Create a `.env` file in the root directory:
 
 ```yaml
-# docker-compose.yml
 .env:
       - GEMINI_API_KEY=your_actual_google_api_key_here
 ```
